@@ -21,8 +21,8 @@ function Input({
   set_value,
 }: {
   label: string;
-  value: string;
-  set_value: Dispatch<SetStateAction<Address>>;
+  value?: string;
+  set_value: Dispatch<SetStateAction<Address | undefined>>;
 }) {
   return (
     <Box>
@@ -44,6 +44,7 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
     );
   }
   if (!query.isSuccess) return;
+  // @ts-ignore
   if (query?.data[0] === 0n) return <Text color="red">auction does not exist or ended</Text>;
   // @ts-ignore
   const kick_time = new Date(Number.parseInt(query?.data[0].toString()) * 1000)
@@ -115,7 +116,7 @@ function App() {
   const [borrower, set_borrower] = useState<Address>();
   const { data: block_number } = useBlockNumber({ watch: true });
   const auction_query = useReadPoolInfoUtilsAuctionStatus({
-    args: [pool, borrower],
+    args: [pool as Address, borrower as Address],
     query: { enabled: !!pool && !!borrower && !!block_number, retry: 0 },
   });
 
@@ -123,26 +124,27 @@ function App() {
     query_client.invalidateQueries({ queryKey: auction_query.queryKey });
   }, [block_number]);
 
-  function set_query(key, value) {
+  function set_query(key: string, value: string) {
+    // @ts-ignore
     const url = new URL(document.location);
     url.searchParams.set(key, value);
     history.replaceState(null, "", url);
   }
 
   useEffect(() => {
-    if (!!pool) set_query("pool", pool);
+    if (pool) set_query("pool", pool);
   }, [pool]);
 
   useEffect(() => {
-    if (!!borrower) set_query("borrower", borrower);
+    if (borrower) set_query("borrower", borrower);
   }, [borrower]);
 
   useEffect(() => {
     const search_params = new URLSearchParams(document.location.search);
     const search_pool = search_params.get("pool");
     const search_borrower = search_params.get("borrower");
-    set_pool(search_pool);
-    set_borrower(search_borrower);
+    set_pool(search_pool as Address);
+    set_borrower(search_borrower as Address);
   }, []);
 
   return (
