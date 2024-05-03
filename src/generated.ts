@@ -2,7 +2,147 @@ import {
   createUseReadContract,
   createUseWriteContract,
   createUseSimulateContract,
+  createUseWatchContractEvent,
 } from 'wagmi/codegen'
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC20PoolFactory
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const erc20PoolFactoryAbi = [
+  {
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+    inputs: [{ name: 'ajna_', internalType: 'address', type: 'address' }],
+  },
+  { type: 'error', inputs: [], name: 'CreateFail' },
+  { type: 'error', inputs: [], name: 'DecimalsNotCompliant' },
+  { type: 'error', inputs: [], name: 'DeployQuoteCollateralSameToken' },
+  { type: 'error', inputs: [], name: 'DeployWithZeroAddress' },
+  {
+    type: 'error',
+    inputs: [{ name: 'pool_', internalType: 'address', type: 'address' }],
+    name: 'PoolAlreadyExists',
+  },
+  { type: 'error', inputs: [], name: 'PoolInterestRateInvalid' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'pool_',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'subsetHash_',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+    ],
+    name: 'PoolCreated',
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'ERC20_NON_SUBSET_HASH',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'MAX_RATE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'MIN_RATE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'ajna',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'collateral_', internalType: 'address', type: 'address' },
+      { name: 'quote_', internalType: 'address', type: 'address' },
+      { name: 'interestRate_', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'deployPool',
+    outputs: [{ name: 'pool_', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'bytes32', type: 'bytes32' },
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+    ],
+    name: 'deployedPools',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'deployedPoolsList',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'getDeployedPoolsList',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'getNumberOfDeployedPools',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'implementation',
+    outputs: [
+      { name: '', internalType: 'contract ERC20Pool', type: 'address' },
+    ],
+  },
+] as const
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const erc20PoolFactoryAddress = {
+  1: '0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625',
+} as const
+
+/**
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const erc20PoolFactoryConfig = {
+  address: erc20PoolFactoryAddress,
+  abi: erc20PoolFactoryAbi,
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PoolInfoUtils
@@ -345,6 +485,191 @@ export const poolInfoUtilsConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactory = /*#__PURE__*/ createUseReadContract({
+  abi: erc20PoolFactoryAbi,
+  address: erc20PoolFactoryAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"ERC20_NON_SUBSET_HASH"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryErc20NonSubsetHash =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'ERC20_NON_SUBSET_HASH',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"MAX_RATE"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryMaxRate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'MAX_RATE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"MIN_RATE"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryMinRate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'MIN_RATE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"ajna"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryAjna = /*#__PURE__*/ createUseReadContract({
+  abi: erc20PoolFactoryAbi,
+  address: erc20PoolFactoryAddress,
+  functionName: 'ajna',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"deployedPools"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryDeployedPools =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'deployedPools',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"deployedPoolsList"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryDeployedPoolsList =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'deployedPoolsList',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"getDeployedPoolsList"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryGetDeployedPoolsList =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'getDeployedPoolsList',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"getNumberOfDeployedPools"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryGetNumberOfDeployedPools =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'getNumberOfDeployedPools',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"implementation"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useReadErc20PoolFactoryImplementation =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'implementation',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useWriteErc20PoolFactory = /*#__PURE__*/ createUseWriteContract({
+  abi: erc20PoolFactoryAbi,
+  address: erc20PoolFactoryAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"deployPool"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useWriteErc20PoolFactoryDeployPool =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'deployPool',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useSimulateErc20PoolFactory =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `functionName` set to `"deployPool"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useSimulateErc20PoolFactoryDeployPool =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    functionName: 'deployPool',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc20PoolFactoryAbi}__
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useWatchErc20PoolFactoryEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc20PoolFactoryAbi}__ and `eventName` set to `"PoolCreated"`
+ *
+ * [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625)
+ */
+export const useWatchErc20PoolFactoryPoolCreatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: erc20PoolFactoryAbi,
+    address: erc20PoolFactoryAddress,
+    eventName: 'PoolCreated',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link poolInfoUtilsAbi}__
