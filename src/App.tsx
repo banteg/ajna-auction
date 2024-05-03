@@ -33,7 +33,6 @@ function Input({
 }
 
 function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
-  console.log(query.status);
   if (query.isError) {
     return (
       <Box>
@@ -45,6 +44,7 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
     );
   }
   if (!query.isSuccess) return;
+  if (query?.data[0] === 0n) return <Text color="red">auction does not exist or ended</Text>;
   // @ts-ignore
   const kick_time = new Date(Number.parseInt(query?.data[0].toString()) * 1000)
     .toISOString()
@@ -118,7 +118,6 @@ function App() {
     args: [pool, borrower],
     query: { enabled: !!pool && !!borrower && !!block_number, retry: 0 },
   });
-  console.log(auction_query);
 
   useEffect(() => {
     query_client.invalidateQueries({ queryKey: auction_query.queryKey });
