@@ -127,7 +127,7 @@ function App() {
   }, [block_number]);
 
   return (
-    <Container size="1" p="2rem">
+    <Container size="1" p={{ initial: "2", md: "4" }}>
       <Flex direction="column" gap="4">
         <Flex align="baseline">
           <Text size="5">ajna auction</Text>
