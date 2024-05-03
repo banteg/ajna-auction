@@ -62,44 +62,44 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
         </Text>
       )}
       <Grid columns="2" align="baseline" gap="2">
-        <Text>kickTime</Text>
+        <Text>kickTime </Text>
         <Text truncate>{kick_time}</Text>
-        <Text>collateral</Text>
+        <Text>collateral </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[1], 18)}
         </Text>
-        <Text>debtToCover</Text>
+        <Text>debtToCover </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[2], 18)}
         </Text>
-        <Text>isCollateralized</Text>
+        <Text>isCollateralized </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {query.data[3].toString()}
         </Text>
-        <Text color="red">price</Text>
+        <Text color="red">price </Text>
         <Text truncate size="4" color="red">
           {/* @ts-ignore */}
           <Strong>{format_wei(query.data[4], 18)}</Strong>
         </Text>
-        <Text>neutralPrice</Text>
+        <Text>neutralPrice </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[5], 18)}
         </Text>
-        <Text>referencePrice</Text>
+        <Text>referencePrice </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[6], 18)}
         </Text>
-        <Text>debtToCollateral</Text>
+        <Text>debtToCollateral </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[7], 18)}
         </Text>
-        <Text>bondFactor</Text>
+        <Text>bondFactor </Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[8], 18)}
@@ -111,8 +111,8 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
 
 function App() {
   const query_client = useQueryClient();
-  const [pool, set_pool] = useState<Address>("0x07aaa9e40323a85e763a5b2eb9d8ca7ebaf7fb5a");
-  const [borrower, set_borrower] = useState<Address>("0x286ee152779ca230a30337d3f96df7963e41a307");
+  const [pool, set_pool] = useState<Address>();
+  const [borrower, set_borrower] = useState<Address>();
   const { data: block_number } = useBlockNumber({ watch: true });
   const auction_query = useReadPoolInfoUtilsAuctionStatus({
     args: [pool, borrower],
@@ -123,6 +123,17 @@ function App() {
   useEffect(() => {
     query_client.invalidateQueries({ queryKey: auction_query.queryKey });
   }, [block_number]);
+
+  useEffect(() => {
+    if (!!pool && !!borrower) localStorage.setItem("ajna_selected", JSON.stringify({ pool, borrower }));
+  }, [pool, borrower]);
+
+  useEffect(() => {
+    let data = localStorage.getItem("ajna_selected");
+    data = data && JSON.parse(data);
+    set_pool(data?.pool);
+    set_borrower(data?.borrower);
+  }, []);
 
   return (
     <Container size="1" p={{ initial: "2", md: "4" }}>
