@@ -62,46 +62,44 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
         </Text>
       )}
       <Grid columns="2" align="baseline" gap="2">
-        <Text>uint256 kickTime_</Text>
-        <Text size="2" truncate>
-          {kick_time}
-        </Text>
-        <Text>uint256 collateral_</Text>
+        <Text>kickTime</Text>
+        <Text truncate>{kick_time}</Text>
+        <Text>collateral</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[1], 18)}
         </Text>
-        <Text>uint256 debtToCover_</Text>
+        <Text>debtToCover</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[2], 18)}
         </Text>
-        <Text>bool isCollateralized_</Text>
+        <Text>isCollateralized</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {query.data[3].toString()}
         </Text>
-        <Text color="red">uint256 price_</Text>
+        <Text color="red">price</Text>
         <Text truncate size="4" color="red">
           {/* @ts-ignore */}
           <Strong>{format_wei(query.data[4], 18)}</Strong>
         </Text>
-        <Text>uint256 neutralPrice_</Text>
+        <Text>neutralPrice</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[5], 18)}
         </Text>
-        <Text>uint256 referencePrice_</Text>
+        <Text>referencePrice</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[6], 18)}
         </Text>
-        <Text>uint256 debtToCollateral_</Text>
+        <Text>debtToCollateral</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[7], 18)}
         </Text>
-        <Text>uint256 bondFactor_</Text>
+        <Text>bondFactor</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[8], 18)}
