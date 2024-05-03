@@ -66,37 +66,37 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
         <Text size="2" truncate>
           {kick_time}
         </Text>
-        <Text>uint256 collateral_,</Text>
+        <Text>uint256 collateral_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[1], 18)}
         </Text>
-        <Text>uint256 debtToCover_,</Text>
+        <Text>uint256 debtToCover_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[2], 18)}
         </Text>
-        <Text>bool isCollateralized_,</Text>
+        <Text>bool isCollateralized_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {query.data[3].toString()}
         </Text>
-        <Text color="red">uint256 price_,</Text>
+        <Text color="red">uint256 price_</Text>
         <Text truncate size="4" color="red">
           {/* @ts-ignore */}
           <Strong>{format_wei(query.data[4], 18)}</Strong>
         </Text>
-        <Text>uint256 neutralPrice_,</Text>
+        <Text>uint256 neutralPrice_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[5], 18)}
         </Text>
-        <Text>uint256 referencePrice_,</Text>
+        <Text>uint256 referencePrice_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[6], 18)}
         </Text>
-        <Text>uint256 debtToCollateral_,</Text>
+        <Text>uint256 debtToCollateral_</Text>
         <Text truncate size="4">
           {/* @ts-ignore */}
           {format_wei(query.data[7], 18)}
