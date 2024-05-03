@@ -1,9 +1,9 @@
 import { Box, Container, Flex, Grid, Strong, Text, TextField } from "@radix-ui/themes";
-import { queryOptions, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useEffect, useState } from "react";
-import { formatUnits } from "viem";
-import { useAccount, useBlockNumber, useConnect, useDisconnect } from "wagmi";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { type Address, formatUnits } from "viem";
+import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
 import { useReadPoolInfoUtilsAuctionStatus } from "./generated";
 
 export function format_wei(value: bigint, decimals: number, digits = 5) {
@@ -15,16 +15,24 @@ export function format_wei(value: bigint, decimals: number, digits = 5) {
   });
 }
 
-function Input({ label, value, set_value }) {
+function Input({
+  label,
+  value,
+  set_value,
+}: {
+  label: string;
+  value: string;
+  set_value: Dispatch<SetStateAction<Address>>;
+}) {
   return (
     <Box>
       <Text color="gray">{label}</Text>
-      <TextField.Root placeholder={label} value={value} onChange={(e) => set_value(e.target.value)}></TextField.Root>
+      <TextField.Root placeholder={label} value={value} onChange={(e) => set_value(e.target.value as Address)} />
     </Box>
   );
 }
 
-function AjnaAuctionInfo({ query }) {
+function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
   console.log(query.status);
   if (query.isError) {
     return (
@@ -37,7 +45,8 @@ function AjnaAuctionInfo({ query }) {
     );
   }
   if (!query.isSuccess) return;
-  const kick_time = new Date(Number.parseInt(query.data[0].toString()) * 1000)
+  // @ts-ignore
+  const kick_time = new Date(Number.parseInt(query?.data[0].toString()) * 1000)
     .toISOString()
     .replace("T", " ")
     .replace(".000", "");
@@ -59,34 +68,42 @@ function AjnaAuctionInfo({ query }) {
         </Text>
         <Text>uint256 collateral_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[1], 18)}
         </Text>
         <Text>uint256 debtToCover_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[2], 18)}
         </Text>
         <Text>bool isCollateralized_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {query.data[3].toString()}
         </Text>
         <Text color="red">uint256 price_,</Text>
         <Text truncate size="4" color="red">
+          {/* @ts-ignore */}
           <Strong>{format_wei(query.data[4], 18)}</Strong>
         </Text>
         <Text>uint256 neutralPrice_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[5], 18)}
         </Text>
         <Text>uint256 referencePrice_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[6], 18)}
         </Text>
         <Text>uint256 debtToCollateral_,</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[7], 18)}
         </Text>
         <Text>uint256 bondFactor_</Text>
         <Text truncate size="4">
+          {/* @ts-ignore */}
           {format_wei(query.data[8], 18)}
         </Text>
       </Grid>
@@ -96,12 +113,12 @@ function AjnaAuctionInfo({ query }) {
 
 function App() {
   const query_client = useQueryClient();
-  const [pool, set_pool] = useState("0x07aaa9e40323a85e763a5b2eb9d8ca7ebaf7fb5a");
-  const [borrower, set_borrower] = useState("0x286ee152779ca230a30337d3f96df7963e41a307");
+  const [pool, set_pool] = useState<Address>("0x07aaa9e40323a85e763a5b2eb9d8ca7ebaf7fb5a");
+  const [borrower, set_borrower] = useState<Address>("0x286ee152779ca230a30337d3f96df7963e41a307");
   const { data: block_number } = useBlockNumber({ watch: true });
   const auction_query = useReadPoolInfoUtilsAuctionStatus({
     args: [pool, borrower],
-    query: { enabled: pool && borrower && block_number, retry: 0 },
+    query: { enabled: !!pool && !!borrower && !!block_number, retry: 0 },
   });
   console.log(auction_query);
 
@@ -115,7 +132,7 @@ function App() {
         <Flex align="baseline">
           <Text size="5">ajna auction</Text>
           <Box flexGrow="1" />
-          {block_number && (
+          {!!block_number && (
             <Text size="2" color="gray">
               block {block_number?.toLocaleString("en-US")}
             </Text>
