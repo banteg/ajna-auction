@@ -123,15 +123,26 @@ function App() {
     query_client.invalidateQueries({ queryKey: auction_query.queryKey });
   }, [block_number]);
 
-  useEffect(() => {
-    if (!!pool && !!borrower) localStorage.setItem("ajna_selected", JSON.stringify({ pool, borrower }));
-  }, [pool, borrower]);
+  function set_query(key, value) {
+    const url = new URL(document.location);
+    url.searchParams.set(key, value);
+    history.replaceState(null, "", url);
+  }
 
   useEffect(() => {
-    let data = localStorage.getItem("ajna_selected");
-    data = data && JSON.parse(data);
-    set_pool(data?.pool);
-    set_borrower(data?.borrower);
+    if (!!pool) set_query("pool", pool);
+  }, [pool]);
+
+  useEffect(() => {
+    if (!!borrower) set_query("borrower", borrower);
+  }, [borrower]);
+
+  useEffect(() => {
+    const search_params = new URLSearchParams(document.location.search);
+    const search_pool = search_params.get("pool");
+    const search_borrower = search_params.get("borrower");
+    set_pool(search_pool);
+    set_borrower(search_borrower);
   }, []);
 
   return (
