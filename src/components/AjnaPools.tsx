@@ -12,7 +12,7 @@ const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 
 export function AjnaPools() {
   const query_client = useQueryClient();
-  const page_size = 10000n;
+  const page_size = 100000n;
   //   const start_block = 18962313n;
   const start_block = 18962000n;
   //   const [end_block, set_block] = useState();
@@ -45,7 +45,7 @@ export function AjnaPools() {
       pools: data.pages.flat().map((log) => log.args.pool),
       deploy_blocks: data.pages
         .flat()
-        .reduce((acc, log) => ({ ...acc, [log.args.pool]: Number.parseInt(log.blockNumber) }), Object()),
+        .reduce((acc, log) => ({ ...acc, [log.args.pool]: Number.parseInt(log.blockNumber) }), {}),
     }),
     staleTime: Number.POSITIVE_INFINITY,
   });
@@ -56,7 +56,7 @@ export function AjnaPools() {
     if (pools_query.hasNextPage) pools_query.fetchNextPage();
   }, [pools_query.data?.num_pages]);
 
-  if (pools_query.isFetching) {
+  if (pools_query.isFetching || pools_query.hasNextPage) {
     return <Text color="blue">fetching ajna pools, found {pools_query.data?.pools?.length} pools</Text>;
   }
 
@@ -71,7 +71,7 @@ export function AjnaPools() {
       {pools_query.hasNextPage && <Button onClick={(e) => pools_query.fetchNextPage()}>fetch more</Button>}
       <Text>start block: {start_block.toString()}</Text>
       <Text>end block: {end_block?.toString()}</Text>
-      <Text size="1">{JSON.stringify(pools_query.data)}</Text>
+      <Text size="1">{JSON.stringify(pools_query.data?.deploy_blocks)}</Text>
     </Flex>
   );
 }
