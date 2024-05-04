@@ -1,7 +1,10 @@
 import { Buffer } from "buffer";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { experimental_createPersister } from "@tanstack/react-query-persist-client";
+import {
+  type PersistedQuery,
+  experimental_createPersister,
+} from "@tanstack/react-query-persist-client";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { WagmiProvider } from "wagmi";
@@ -11,6 +14,7 @@ import * as idb from "idb-keyval";
 import App from "./App.tsx";
 import { config } from "./wagmi.ts";
 
+import "./fonts/fonts.css";
 import "./index.css";
 
 import "@radix-ui/themes/styles.css";
@@ -26,14 +30,14 @@ const persister = experimental_createPersister({
     removeItem: async (key) => idb.del(key),
   },
   maxAge: Number.POSITIVE_INFINITY,
-  serialize: (value) => value,
+  serialize: (value: PersistedQuery) => value,
   deserialize: (value) => value,
-  buster: "9",
+  buster: "12",
 });
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 0,
+      retry: false,
       persister: persister,
     },
   },
