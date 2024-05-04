@@ -23,6 +23,7 @@ const persister = experimental_createPersister({
   maxAge: 1000 * 60 * 60 * 12,
   serialize: serialize,
   deserialize: deserialize,
+  buster: "v1",
 });
 const queryClient = new QueryClient({
   defaultOptions: {

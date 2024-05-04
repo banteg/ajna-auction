@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { type Address, formatUnits } from "viem";
 import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
+import { AjnaPools } from "./components/AjnaPools";
 import { useReadPoolInfoUtilsAuctionStatus } from "./generated";
 
 export function format_wei(value: bigint, decimals: number, digits = 5) {
@@ -110,10 +111,18 @@ function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
   );
 }
 
+export function AjnaActiveAuctions() {
+  return (
+    <Flex direction="column" gap="2">
+      <Text size="5">active auctions</Text>
+    </Flex>
+  );
+}
+
 function App() {
   const query_client = useQueryClient();
-  const [pool, set_pool] = useState<Address>();
-  const [borrower, set_borrower] = useState<Address>();
+  const [pool, set_pool] = useState<Address>("");
+  const [borrower, set_borrower] = useState<Address>("");
   const { data: block_number } = useBlockNumber({ watch: true });
   const auction_query = useReadPoolInfoUtilsAuctionStatus({
     args: [pool as Address, borrower as Address],
@@ -162,6 +171,7 @@ function App() {
         <Input label="pool" value={pool} set_value={set_pool} />
         <Input label="borrower" value={borrower} set_value={set_borrower} />
         <AjnaAuctionInfo query={auction_query} />
+        <AjnaPools />
       </Flex>
       <ReactQueryDevtools />
     </Container>
