@@ -22,6 +22,12 @@ export default defineConfig({
             [mainnet.id]: "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625",
           },
         },
+        {
+          name: "ERC20Pool",
+          address: {
+            [mainnet.id]: "0x4B3B9A972a884e37FD675ee57F6998da0BE47e26",
+          },
+        },
       ],
     }),
     react(),
