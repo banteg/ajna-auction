@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { type Address, parseAbiItem } from "viem";
 import { serialize } from "wagmi";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
-import { config } from "../wagmi";
 
 const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 const ajna_factory_deploy_block = 18962313n;
@@ -15,12 +14,9 @@ export function AjnaPools() {
     event: parseAbiItem("event PoolCreated(address pool, bytes32 subsetHash)"),
     start_block: ajna_factory_deploy_block,
     page_size: page_size,
-    config: config,
   });
 
   const pools = useMemo(() => pools_query.data?.map((log) => log.args.pool), [pools_query.data]);
-
-  console.log(pools);
 
   return (
     <Flex direction="column" gap="2">

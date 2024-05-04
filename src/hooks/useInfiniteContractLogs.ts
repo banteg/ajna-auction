@@ -1,15 +1,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import type { AbiEvent, Address } from "viem";
+import { useContext, useEffect } from "react";
+import type { AbiEvent, Address, Client } from "viem";
 import { getLogs } from "viem/actions";
-import { useBlockNumber, type Config } from "wagmi";
+import { WagmiContext, useBlockNumber } from "wagmi";
 
 interface UseContractLogsProps {
   address: Address | Address[];
   event: AbiEvent;
   start_block: bigint;
   page_size: bigint;
-  config: Config;
 }
 
 interface PageParam {
@@ -18,13 +17,13 @@ interface PageParam {
 }
 
 async function fetch_logs(
-  config: Config,
+  client: Client,
   address: Address | Address[],
   event: AbiEvent,
   from_block: bigint,
   to_block: bigint,
 ) {
-  return getLogs(config.getClient(), {
+  return getLogs(client, {
     address: address,
     event: event,
     fromBlock: from_block,
@@ -37,14 +36,14 @@ export function useInfiniteContractLogs({
   event,
   start_block,
   page_size,
-  config,
 }: UseContractLogsProps) {
+  const config = useContext(WagmiContext);
   const { data: end_block } = useBlockNumber();
 
   const query = useInfiniteQuery({
     queryKey: ["infinite_contract_logs", address, event.name, start_block.toString()],
     queryFn: ({ pageParam }) =>
-      fetch_logs(config, address, event, pageParam.from_block, pageParam.to_block),
+      fetch_logs(config.getClient(), address, event, pageParam.from_block, pageParam.to_block),
     initialPageParam: {
       from_block: start_block,
       to_block: start_block + page_size - 1n,
