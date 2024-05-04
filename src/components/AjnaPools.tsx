@@ -1,4 +1,4 @@
-import { Box, Button, Code, Flex, Grid, Text } from "@radix-ui/themes";
+import { Box, Button, Code, Flex, Grid, Strong, Text } from "@radix-ui/themes";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getBlockNumber } from "@wagmi/core";
 import { useEffect, useState } from "react";
@@ -23,6 +23,7 @@ export function AjnaPools() {
 
   async function fetch_logs({ pageParam }) {
     // fetches PoolCreated and extracts a list of pools
+    // TODO fetch last page
     console.log("fetch page", pageParam);
     const logs = await getLogs(config.getClient(), {
       address: ajna_factory,
@@ -30,7 +31,7 @@ export function AjnaPools() {
       fromBlock: pageParam,
       toBlock: pageParam + page_size - 1n,
     });
-    return logs.map((log) => log.args.pool);
+    return logs;
   }
 
   const pools_query = useInfiniteQuery({
@@ -39,7 +40,13 @@ export function AjnaPools() {
     initialPageParam: start_block,
     getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) =>
       lastPageParam + page_size < end_block ? lastPageParam + page_size : null,
-    select: (data) => ({ num_pages: data.pages.length, pools: data.pages.flat() }),
+    select: (data) => ({
+      num_pages: data.pages.length,
+      pools: data.pages.flat().map((log) => log.args.pool),
+      deploy_blocks: data.pages
+        .flat()
+        .reduce((acc, log) => ({ ...acc, [log.args.pool]: Number.parseInt(log.blockNumber) }), Object()),
+    }),
     staleTime: Number.POSITIVE_INFINITY,
   });
 
@@ -49,16 +56,19 @@ export function AjnaPools() {
     if (pools_query.hasNextPage) pools_query.fetchNextPage();
   }, [pools_query.data?.num_pages]);
 
+  if (pools_query.isFetching) {
+    return <Text color="blue">fetching ajna pools, found {pools_query.data?.pools?.length} pools</Text>;
+  }
+
+  console.log(pools_query.data);
+
   return (
     <Flex direction="column" gap="2">
       <Text size="5" color="purple">
-        anja pools {pools_query.data?.num_pages} / {num_pages?.toString()}
+        anja pools {pools_query.data?.num_pages} / {num_pages?.toString()}, num_pools ={" "}
+        {pools_query.data?.pools?.length}
       </Text>
       {pools_query.hasNextPage && <Button onClick={(e) => pools_query.fetchNextPage()}>fetch more</Button>}
-      <Flex>
-        <Button onClick={(e) => set_page((page) => page - 1)}>go to page {sel_page - 1}</Button>
-        <Button onClick={(e) => set_page((page) => page + 1)}>go to page {sel_page + 1}</Button>
-      </Flex>
       <Text>start block: {start_block.toString()}</Text>
       <Text>end block: {end_block?.toString()}</Text>
       <Text size="1">{JSON.stringify(pools_query.data)}</Text>
