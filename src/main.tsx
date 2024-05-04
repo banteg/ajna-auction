@@ -20,17 +20,16 @@ globalThis.Buffer = Buffer;
 
 const persister = experimental_createPersister({
   storage: AsyncStorage,
-  maxAge: 1000 * 60 * 60 * 12,
+  maxAge: Number.POSITIVE_INFINITY,
   serialize: serialize,
   deserialize: deserialize,
-  buster: "v1",
+  buster: "6",
 });
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 0,
       persister: persister,
-      gcTime: 1000 * 60 * 60 * 24,
     },
   },
 });
