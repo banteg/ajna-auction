@@ -17,6 +17,21 @@ interface PageParam {
   to_block: bigint;
 }
 
+async function fetch_logs(
+  config: Config,
+  address: Address | Address[],
+  event: AbiEvent,
+  from_block: bigint,
+  to_block: bigint,
+) {
+  return getLogs(config.getClient(), {
+    address: address,
+    event: event,
+    fromBlock: from_block,
+    toBlock: to_block,
+  });
+}
+
 export function useInfiniteContractLogs({
   address,
   event,
@@ -26,20 +41,10 @@ export function useInfiniteContractLogs({
 }: UseContractLogsProps) {
   const { data: end_block } = useBlockNumber();
 
-  async function fetch_logs({ pageParam }: { pageParam: PageParam }) {
-    const size = pageParam.to_block - pageParam.from_block + 1n;
-    console.log("fetch logs", pageParam, "size", size);
-    return getLogs(config.getClient(), {
-      address: address,
-      event: event,
-      fromBlock: pageParam.from_block,
-      toBlock: pageParam.to_block,
-    });
-  }
-
   const query = useInfiniteQuery({
     queryKey: ["infinite_contract_logs", address, event, start_block.toString()],
-    queryFn: fetch_logs,
+    queryFn: ({ pageParam }) =>
+      fetch_logs(config, address, event, pageParam.from_block, pageParam.to_block),
     initialPageParam: {
       from_block: start_block,
       to_block: start_block + page_size - 1n,
