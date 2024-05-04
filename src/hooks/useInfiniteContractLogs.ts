@@ -42,7 +42,7 @@ export function useInfiniteContractLogs({
   const { data: end_block } = useBlockNumber();
 
   const query = useInfiniteQuery({
-    queryKey: ["infinite_contract_logs", address, event, start_block.toString()],
+    queryKey: ["infinite_contract_logs", address, event.name, start_block.toString()],
     queryFn: ({ pageParam }) =>
       fetch_logs(config, address, event, pageParam.from_block, pageParam.to_block),
     initialPageParam: {
