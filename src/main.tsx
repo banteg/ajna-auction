@@ -1,11 +1,12 @@
 import { Buffer } from "buffer";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { experimental_createPersister } from "@tanstack/react-query-persist-client";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { WagmiProvider, deserialize, serialize } from "wagmi";
+import { WagmiProvider } from "wagmi";
+
+import * as idb from "idb-keyval";
 
 import App from "./App.tsx";
 import { config } from "./wagmi.ts";
@@ -19,11 +20,15 @@ import { Theme } from "@radix-ui/themes";
 globalThis.Buffer = Buffer;
 
 const persister = experimental_createPersister({
-  storage: AsyncStorage,
+  storage: {
+    getItem: async (key) => idb.get(key),
+    setItem: async (key, value) => idb.set(key, value),
+    removeItem: async (key) => idb.del(key),
+  },
   maxAge: Number.POSITIVE_INFINITY,
-  serialize: serialize,
-  deserialize: deserialize,
-  buster: "6",
+  serialize: (value) => value,
+  deserialize: (value) => value,
+  buster: "9",
 });
 const queryClient = new QueryClient({
   defaultOptions: {
