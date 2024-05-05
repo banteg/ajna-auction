@@ -1,9 +1,9 @@
-import { Box, Flex, Grid, Separator, Strong, Text } from "@radix-ui/themes";
+import { Box, Flex, Separator, Strong, Text } from "@radix-ui/themes";
 import { Command } from "cmdk";
-import { useContext, useMemo, useState } from "react";
+import { Children, useContext, useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { serialize, useReadContracts } from "wagmi";
-import { get_auction_data, logs_to_depositors } from "../ajna";
+import { get_auction_data } from "../ajna";
 import { AjnaContext } from "../context";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
@@ -30,7 +30,24 @@ const event_colors = {
   ReserveAuction: "green",
 };
 
-const wad_values = ["debt", "collateral", "bond", "amount", "bondChange", "lpAwarded"];
+const wad_values = [
+  "debt",
+  "collateral",
+  "bond",
+  "amount",
+  "bondChange",
+  "lpAwarded",
+  "amountBorrowed",
+  "collateralPledged",
+  "lup",
+  "oldRate",
+  "newRate",
+  "quoteRepaid",
+  "collateralPulled",
+  "claimableReservesRemaining",
+  "auctionPrice",
+  "lpRedeemed",
+];
 
 export function PoolEvent({ log }: { log: Log }) {
   const settings = useContext(AjnaContext);
@@ -43,7 +60,7 @@ export function PoolEvent({ log }: { log: Log }) {
           ? val.toString()
           : format_wei(val, 18)
         : serialize(val);
-    args.push(`${key}=${value}`);
+    args.push([key, value]);
   }
   return (
     <Flex as="p" gap="2">
@@ -53,9 +70,17 @@ export function PoolEvent({ log }: { log: Log }) {
       <Text size="1" color={event_colors[log.eventName]} as="span">
         <Strong>{log.eventName}</Strong>
       </Text>
-      <Text size="1" as="span">
-        {args.join(", ")}
-      </Text>
+      {/* solves the key issue if this event is rendered in multiple places */}
+      {Children.toArray(
+        args.map(([key, val]) => (
+          <Text size="1">
+            <Text as="span" color="gray">
+              {key}=
+            </Text>
+            {val}
+          </Text>
+        )),
+      )}
     </Flex>
   );
 }
