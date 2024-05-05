@@ -6,7 +6,7 @@ import { WagmiContext, useBlockNumber } from "wagmi";
 
 interface UseContractLogsProps {
   address: Address | Address[];
-  event: AbiEvent;
+  events: AbiEvent[];
   start_block: bigint;
   page_size: bigint;
   enabled: boolean;
@@ -17,16 +17,22 @@ interface PageParam {
   to_block: bigint;
 }
 
-async function fetch_logs(
-  client: Client,
-  address: Address | Address[],
-  event: AbiEvent,
-  from_block: bigint,
-  to_block: bigint,
-) {
+async function fetch_logs({
+  client,
+  address,
+  events,
+  from_block,
+  to_block,
+}: {
+  client: Client;
+  address: Address | Address[];
+  events: AbiEvent[];
+  from_block: bigint;
+  to_block: bigint;
+}) {
   return getLogs(client, {
     address: address,
-    event: event,
+    events: events,
     fromBlock: from_block,
     toBlock: to_block,
   });
@@ -34,7 +40,7 @@ async function fetch_logs(
 
 export function useInfiniteContractLogs({
   address,
-  event,
+  events,
   start_block,
   page_size,
   enabled = true,
@@ -43,9 +49,20 @@ export function useInfiniteContractLogs({
   const { data: end_block } = useBlockNumber();
 
   const query = useInfiniteQuery({
-    queryKey: ["infinite_contract_logs", address, event.name, start_block.toString()],
+    queryKey: [
+      "infinite_contract_logs",
+      address,
+      events.map((e) => e.name),
+      start_block.toString(),
+    ],
     queryFn: ({ pageParam }) =>
-      fetch_logs(config.getClient(), address, event, pageParam.from_block, pageParam.to_block),
+      fetch_logs({
+        client: config.getClient(),
+        address,
+        events,
+        from_block: pageParam.from_block,
+        to_block: pageParam.to_block,
+      }),
     initialPageParam: {
       from_block: start_block,
       to_block: start_block + page_size - 1n,
