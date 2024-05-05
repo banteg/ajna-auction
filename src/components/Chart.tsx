@@ -31,15 +31,14 @@ export function Chart({ data }: { data: { x: number; y: number }[] }) {
 
 export function AuctionPriceChart({ refernce_price, kick_time }) {
   const referenece_float = Number.parseFloat(format_wad(refernce_price));
+  const elapsed_minutes = Number.parseInt((BigInt(new Date()) / 1000n - kick_time) / 60n);
+
   const data = useMemo(() => {
     const minutes = range(72 * 60);
     return minutes.map((elapsed) => ({ x: elapsed, y: auction_price(referenece_float, elapsed) }));
   }, [refernce_price]);
 
   if (!refernce_price || !kick_time) return;
-
-  const elapsed_minutes = Number.parseInt((BigInt(new Date()) / 1000n - kick_time) / 60n);
-  console.log(elapsed_minutes);
 
   return (
     <Box>
