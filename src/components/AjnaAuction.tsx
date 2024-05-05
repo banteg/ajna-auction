@@ -1,10 +1,20 @@
-import { Box, Callout, Card, DataList, Flex, Progress, Separator, Text } from "@radix-ui/themes";
+import {
+  Box,
+  Callout,
+  Card,
+  DataList,
+  Flex,
+  Progress,
+  Separator,
+  Text,
+  Tooltip,
+} from "@radix-ui/themes";
 import { Badge } from "@radix-ui/themes";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
 import { useReadPoolInfoUtilsAuctionStatus } from "../generated";
-import { format_epoch, format_wad } from "../utils";
+import { format_epoch, format_wad, format_wei } from "../utils";
 import { PoolEvent } from "./AjnaPools";
 
 function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
@@ -27,23 +37,26 @@ function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
   const now = new Date().valueOf() / 1000;
   const auction_duration = 72 * 3600;
   const progress = ((now - Number.parseInt(query.data[0])) / auction_duration) * 100;
-  console.log(progress);
+  const collateral_value = (query.data[1] * query.data[4]) / 10n ** 18n;
+  const remaining_collateral = query.data[1] - (query.data[2] * 10n ** 18n) / query.data[4];
 
   const data = {
     kickTime: format_epoch(query.data[0]),
-    collateral: format_wad(query.data[1]),
-    debtToCover: format_wad(query.data[2]),
-    isCollateralized: query.data[3] ? (
-      <Badge color="green">true</Badge>
-    ) : (
-      <Badge color="red">false</Badge>
+    collateral: <Badge color="lime">{format_wad(query.data[1])}</Badge>,
+    "current value": <Badge color="ruby">{format_wad(collateral_value)}</Badge>,
+    salvagable: (
+      <Tooltip content="value returned if settled at current price">
+        <Badge color="lime">{format_wad(remaining_collateral)}</Badge>
+      </Tooltip>
     ),
-    price: <Badge color="red">{format_wad(query.data[4])}</Badge>,
+    debtToCover: <Badge color="ruby">{format_wad(query.data[2])}</Badge>,
+    price: <Badge color="indigo">{format_wad(query.data[4])}</Badge>,
     neutralPrice: format_wad(query.data[5]),
     referencePrice: format_wad(query.data[6]),
     debtToCollateral: format_wad(query.data[7]),
     bondFactor: format_wad(query.data[8]),
-    "time progress": `${progress.toFixed(2)}%`,
+    timeProgress: `${progress.toFixed(2)}%`,
+    isCollateralized: query.data[3].toString(),
   };
 
   const [pool, borrower] = query.queryKey[1].args; // bit hacky
