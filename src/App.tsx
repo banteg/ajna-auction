@@ -39,7 +39,7 @@ function Input({
 }
 
 function App() {
-  const [settings, set_settings] = useState({ use_wei: true });
+  const [settings, set_settings] = useState({ use_wei: false });
   const query_client = useQueryClient();
   const [pool, set_pool] = useState<Address>("");
   const [borrower, set_borrower] = useState<Address>("");
