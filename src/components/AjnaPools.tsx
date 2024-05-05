@@ -7,6 +7,7 @@ import {
   erc20Abi_bytes32,
   fromHex,
   getAddress,
+  parseAbi,
   parseAbiItem,
 } from "viem";
 import { serialize, useReadContracts } from "wagmi";
@@ -22,24 +23,33 @@ const abi_overrides = {
 };
 const event_colors = {
   Kick: "red",
+  KickReserveAuction: "red",
+  Take: "cyan",
+  Settle: "green",
+  AuctionSettle: "green",
+  ReserveAuction: "green",
 };
 
 export function ContractEvent({ log }: { log: Log }) {
   const args = [];
-  console.log(log);
   for (const [key, val] of Object.entries(log.args)) {
     const value = typeof val === "bigint" ? val.toString() : serialize(val);
     args.push(`${key}=${value}`);
   }
   return (
     <Flex as="p" gap="2">
-      <Text size="1" color="gray" as="span" style={{ fontFamily: "Aeonik Mono" }}>
-        {log.blockNumber?.toString()}
+      <Text
+        size="1"
+        color="gray"
+        as="span"
+        style={{ fontFamily: "Aeonik Mono", minWidth: "6rem", display: "inline-block" }}
+      >
+        {log.blockNumber?.toString()}/{log.logIndex?.toString()}
       </Text>
       <Text size="1" color={event_colors[log.eventName]} as="span">
         <Strong>{log.eventName}</Strong>
       </Text>
-      <Text size="1" color="tomato" as="span">
+      <Text size="1" as="span">
         {args.join(", ")}
       </Text>
     </Flex>
@@ -126,26 +136,31 @@ export function AjnaPools() {
   }, [pools_query, pool_tokens_query]);
 
   // 4. read all kick (auction start) events from all pools
-  const kick_query = useInfiniteContractLogs({
+  const pool_events_query = useInfiniteContractLogs({
     address: pools_query.data ?? [],
     start_block: ajna_factory_deploy_block,
-    event: parseAbiItem(
+    events: parseAbi([
       "event Kick(address indexed borrower, uint256 debt, uint256 collateral, uint256 bond)",
-    ),
+      "event Take(address indexed borrower, uint256 amount, uint256 collateral, uint256 bondChange, bool isReward)",
+      "event Settle(address indexed borrower, uint256 settledDebt)",
+      "event AuctionSettle(address indexed borrower, uint256 collateral)",
+      "event KickReserveAuction(uint256 claimableReservesRemaining, uint256 auctionPrice, uint256 currentBurnEpoch)",
+      "event ReserveAuction(uint256 claimableReservesRemaining, uint256 auctionPrice, uint256 currentBurnEpoch)",
+    ]),
     page_size: page_size,
     enabled: pools_query.isSuccess,
   });
 
-  const pool_kicks = useMemo(() => {
-    if (!kick_query.isSuccess) return;
+  const pool_events = useMemo(() => {
+    if (!pool_events_query.isSuccess) return;
     const kicks: Record<Address, Log[]> = {};
-    for (const log of kick_query.data) {
+    for (const log of pool_events_query.data) {
       const key = getAddress(log.address); // fix checksum
       if (!(key in kicks)) kicks[key] = [];
       kicks[key].push(log);
     }
     return kicks;
-  }, [kick_query.data]);
+  }, [pool_events_query.data]);
 
   return (
     <Flex direction="column" gap="2">
@@ -157,11 +172,16 @@ export function AjnaPools() {
         )}
         {pool_tokens_query.isPending && <Text color="blue"> / fetching pool tokens</Text>}
         {pool_tokens_symbols.isPending && <Text color="blue"> / fetching pool names</Text>}
-        {kick_query.isFetching && <Text color="blue"> / fetching kicks</Text>}
+        {pool_events_query.isFetching && <Text color="blue"> / fetching kicks</Text>}
       </Box>
       {pool_names &&
         pools_query?.data.map((pool) => (
-          <AjnaPool key={pool} pool={pool} name={pool_names[pool]} kicks={pool_kicks[pool]} />
+          <AjnaPool
+            key={pool}
+            pool={pool}
+            name={pool_names[pool]}
+            kicks={pool_events && pool_events[pool]}
+          />
         ))}
     </Flex>
   );
