@@ -16,6 +16,7 @@ import { config } from "./wagmi.ts";
 
 import "./fonts/fonts.css";
 import "./index.css";
+import "./cmdk/raycast.scss";
 
 import "@radix-ui/themes/styles.css";
 

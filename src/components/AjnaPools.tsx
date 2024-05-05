@@ -1,15 +1,7 @@
-import { Box, Flex, Select, Strong, Text } from "@radix-ui/themes";
+import { Box, Flex, Separator, Strong, Text } from "@radix-ui/themes";
+import { Command } from "cmdk";
 import { useMemo, useState } from "react";
-import {
-  type Address,
-  type Log,
-  erc20Abi,
-  erc20Abi_bytes32,
-  fromHex,
-  getAddress,
-  parseAbi,
-  parseAbiItem,
-} from "viem";
+import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { serialize, useReadContracts } from "wagmi";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
@@ -53,15 +45,16 @@ export function PoolEvent({ log }: { log: Log }) {
   );
 }
 
-export function AjnaPool({ pool, name, kicks }) {
+export function AjnaPool({ pool, name, events }) {
   return (
     <Box>
-      <Text size="1">
-        {pool} {name}
-      </Text>
-      {kicks && (
+      <Flex gap="4" align="baseline">
+        <Text size="5">{name}</Text>
+        <Text size="2">{pool}</Text>
+      </Flex>
+      {events && (
         <Box ml="4">
-          {kicks.map((log) => (
+          {events.map((log) => (
             <PoolEvent key={`log-${log.blockNumber}-${log.logIndex}`} log={log} />
             // <Text size="1" color="red" as="p" key={`log-${log.blockNumber}-${log.logIndex}`}>
             //   block={log.blockNumber.toString()} borrower={log.args.borrower}
@@ -74,17 +67,50 @@ export function AjnaPool({ pool, name, kicks }) {
 }
 
 export function AjnaPoolSelect({ pools, names, selected, on_select }) {
+  const [open, set_open] = useState(true);
+  const [input_value, set_input_value] = useState("");
+
   return (
-    <Select.Root onValueChange={(e) => on_select(e.valueOf())}>
-      <Select.Trigger />
-      <Select.Content>
-        {pools.map((pool) => (
-          <Select.Item key={`select-${pool}`} value={pool}>
-            {names[pool]}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select.Root>
+    <div className="raycast">
+      <Command
+        open={open}
+        value={selected ?? ""}
+        onValueChange={on_select}
+        onInput={() => set_open(true)}
+        onFocus={() => set_open(true)}
+        onBlur={() => set_open(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") set_open(false);
+        }}
+      >
+        <Command.Input
+          autoFocus={true}
+          placeholder="select pool"
+          value={input_value}
+          onValueChange={set_input_value}
+        />
+        {open && <Separator size="4" mt="2" />}
+        {open && (
+          <Command.List>
+            {!names && <Command.Loading>loading pools</Command.Loading>}
+            <Command.Empty>no pools found</Command.Empty>
+            {pools?.map((pool) => (
+              <Command.Item
+                key={`select-${pool}`}
+                value={pool}
+                keywords={[pool, names[pool].toLowerCase()]}
+                onSelect={(pool) => set_open(false)}
+              >
+                {names[pool]}{" "}
+                <Text size="1" color="gray">
+                  {pool}
+                </Text>
+              </Command.Item>
+            ))}
+          </Command.List>
+        )}
+      </Command>
+    </div>
   );
 }
 
@@ -160,17 +186,17 @@ export function AjnaPools() {
 
   const pool_events = useMemo(() => {
     if (!pool_events_query.isSuccess) return;
-    const kicks: Record<Address, Log[]> = {};
+    const events: Record<Address, Log[]> = {};
     for (const log of pool_events_query.data) {
       const key = getAddress(log.address); // fix checksum
-      if (!(key in kicks)) kicks[key] = [];
-      kicks[key].push(log);
+      if (!(key in events)) events[key] = [];
+      events[key].push(log);
     }
-    return kicks;
+    return events;
   }, [pool_events_query.data]);
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="4">
       <Box>
         {pools_query.isPending ? (
           <Text color="blue">fetching {pools_query.data?.length} ajna pools</Text>
@@ -185,7 +211,6 @@ export function AjnaPools() {
           <Text color="green"> / fetched {pool_events_query.data?.length} pool events</Text>
         )}
       </Box>
-      <Text>{selected_pool}</Text>
       {pool_names && (
         <AjnaPoolSelect
           pools={pools_query.data}
@@ -198,18 +223,9 @@ export function AjnaPools() {
         <AjnaPool
           pool={selected_pool}
           name={pool_names[selected_pool]}
-          kicks={pool_events && pool_events[selected_pool]}
+          events={pool_events && pool_events[selected_pool]}
         />
       )}
-      {/* {pool_names &&
-        pools_query?.data.map((pool) => (
-          <AjnaPool
-            key={pool}
-            pool={pool}
-            name={pool_names[pool]}
-            kicks={pool_events && pool_events[pool]}
-          />
-        ))} */}
     </Flex>
   );
 }
