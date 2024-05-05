@@ -1,15 +1,15 @@
-import { Box, Flex, Separator, Strong, Text } from "@radix-ui/themes";
+import { Box, Flex, Separator, Text } from "@radix-ui/themes";
 import { Command } from "cmdk";
-import { Children, useContext, useMemo, useState } from "react";
+import { Children, useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
-import { serialize, useReadContracts } from "wagmi";
+import { useReadContracts } from "wagmi";
 import { get_auction_data } from "../ajna";
-import { AjnaContext } from "../context";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
 import { AjnaAuctionDetails } from "./AjnaAuction";
 import { Chart } from "./Chart";
+import { PoolEvent } from "./PoolEvent";
 
 const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 const ajna_factory_deploy_block = 18962313n;
@@ -20,71 +20,6 @@ const ajna_pool_events = erc20PoolAbi.filter((abi) => abi.type === "event");
 const abi_overrides = {
   "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2": erc20Abi_bytes32, // MKR
 };
-const event_colors = {
-  Kick: "red",
-  KickReserveAuction: "red",
-  Take: "cyan",
-  BucketTake: "cyan",
-  Settle: "green",
-  AuctionSettle: "green",
-  ReserveAuction: "green",
-};
-
-const wad_values = [
-  "debt",
-  "collateral",
-  "bond",
-  "amount",
-  "bondChange",
-  "lpAwarded",
-  "amountBorrowed",
-  "collateralPledged",
-  "lup",
-  "oldRate",
-  "newRate",
-  "quoteRepaid",
-  "collateralPulled",
-  "claimableReservesRemaining",
-  "auctionPrice",
-  "lpRedeemed",
-];
-
-export function PoolEvent({ log }: { log: Log }) {
-  const settings = useContext(AjnaContext);
-
-  const args = [];
-  for (const [key, val] of Object.entries(log.args)) {
-    const value =
-      typeof val === "bigint"
-        ? settings.use_wei || !wad_values.includes(key)
-          ? val.toString()
-          : format_wei(val, 18)
-        : serialize(val);
-    args.push([key, value]);
-  }
-  return (
-    <Flex as="p" gap="2">
-      <Text size="1" color="gray" as="span" style={{ minWidth: "5.5rem", display: "inline-block" }}>
-        {log.blockNumber?.toString()}/{log.logIndex?.toString()}
-      </Text>
-      <Text size="1" color={event_colors[log.eventName]} as="span">
-        <Strong>{log.eventName}</Strong>
-      </Text>
-      {/* solves the key issue if this event is rendered in multiple places */}
-      {Children.toArray(
-        args.map(([key, val]) => (
-          <Text size="1">
-            <Text as="span" color="gray">
-              {key}=
-            </Text>
-            {val}
-          </Text>
-        )),
-      )}
-    </Flex>
-  );
-}
-
 export function AjnaInterestChart({ logs }) {
   const data = logs?.map((log) => ({
     x: Number.parseInt(log.blockNumber),
@@ -119,16 +54,8 @@ export function AjnaPool({ pool, name, events }) {
           key={`auction-details-${pool}-${key}`}
         />
       ))}
-      <Text size="3" color="amber">
-        all pool events
-      </Text>
-      {events && (
-        <Box ml="4">
-          {events.map((log) => (
-            <PoolEvent key={`log-pool-${log.blockNumber}-${log.logIndex}`} log={log} />
-          ))}
-        </Box>
-      )}
+      <Text size="3">all pool events</Text>
+      {events && <Box>{Children.toArray(events.map((log) => <PoolEvent log={log} />))}</Box>}
     </Flex>
   );
 }

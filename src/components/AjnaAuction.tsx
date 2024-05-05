@@ -1,22 +1,11 @@
-import {
-  Box,
-  Callout,
-  Card,
-  DataList,
-  Flex,
-  Progress,
-  Separator,
-  Text,
-  Tooltip,
-} from "@radix-ui/themes";
-import { Badge } from "@radix-ui/themes";
+import { Badge, Box, Callout, Card, DataList, Flex, Text, Tooltip } from "@radix-ui/themes";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
 import { useReadPoolInfoUtilsAuctionStatus } from "../generated";
-import { format_epoch, format_wad, format_wei } from "../utils";
-import { PoolEvent } from "./AjnaPools";
+import { format_epoch, format_wad } from "../utils";
 import { AuctionPriceChart } from "./Chart";
+import { PoolEvent } from "./PoolEvent";
 
 function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
   if (query.isError) {
@@ -100,7 +89,7 @@ export function AjnaAuctionDetails({ pool, borrower, logs }) {
   }, [block_number]);
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="1">
       <Text size="2" color="red">
         {borrower}{" "}
         {is_settled ? (
@@ -109,9 +98,11 @@ export function AjnaAuctionDetails({ pool, borrower, logs }) {
           <Badge color="orange">in progress</Badge>
         )}
       </Text>
-      {logs.map((log) => (
-        <PoolEvent log={log} key={`log-auction-${log.blockNumber}-${log.logIndex}`} />
-      ))}
+      <Box>
+        {logs.map((log) => (
+          <PoolEvent log={log} key={`log-auction-${log.blockNumber}-${log.logIndex}`} />
+        ))}
+      </Box>
       {!is_settled && <AjnaAuctionStatus query={auction_query} />}
     </Flex>
   );
