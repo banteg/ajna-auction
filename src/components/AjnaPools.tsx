@@ -8,6 +8,7 @@ import { AjnaContext } from "../context";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
+import { AjnaAuctionDetails } from "./AjnaAuction";
 import { Chart } from "./Chart";
 
 const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
@@ -29,10 +30,19 @@ const event_colors = {
   ReserveAuction: "green",
 };
 
+const wad_values = ["debt", "collateral", "bond", "amount", "bondChange", "lpAwarded"];
+
 export function PoolEvent({ log }: { log: Log }) {
+  const settings = useContext(AjnaContext);
+
   const args = [];
   for (const [key, val] of Object.entries(log.args)) {
-    const value = typeof val === "bigint" ? val.toString() : serialize(val);
+    const value =
+      typeof val === "bigint"
+        ? settings.use_wei || !wad_values.includes(key)
+          ? val.toString()
+          : format_wei(val, 18)
+        : serialize(val);
     args.push(`${key}=${value}`);
   }
   return (
@@ -46,19 +56,6 @@ export function PoolEvent({ log }: { log: Log }) {
       <Text size="1" as="span">
         {args.join(", ")}
       </Text>
-    </Flex>
-  );
-}
-
-export function AjnaAuctionDetails({ borrower, logs }) {
-  return (
-    <Flex direction="column" gap="2">
-      <Text size="2" color="red">
-        {borrower}
-      </Text>
-      {logs.map((log) => (
-        <PoolEvent log={log} />
-      ))}
     </Flex>
   );
 }
@@ -90,7 +87,7 @@ export function AjnaPool({ pool, name, events }) {
       {/* <AjnaInterestChart logs={update_interest_rate} /> */}
       <Text>auction data</Text>
       {Object.entries(auction_data ?? {}).map(([key, val]) => (
-        <AjnaAuctionDetails borrower={key} logs={val} />
+        <AjnaAuctionDetails pool={pool} borrower={key} logs={val} />
       ))}
       <Text size="3" color="amber">
         all pool events
@@ -155,8 +152,6 @@ export function AjnaPoolSelect({ pools, names, selected, on_select }) {
 }
 
 export function AjnaPools() {
-  const settings = useContext(AjnaContext);
-  console.log(settings);
   const [selected_pool, set_selected_pool] = useState("0x07AAA9e40323A85e763a5b2eB9d8cA7ebAf7FB5A");
 
   // 1. get a list of all pools from the factory

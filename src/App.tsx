@@ -3,9 +3,7 @@ import {
   Checkbox,
   Container,
   Flex,
-  Grid,
   SegmentedControl,
-  Strong,
   Switch,
   Text,
   TextField,
@@ -14,11 +12,10 @@ import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type Dispatch, type SetStateAction, createContext, useEffect, useState } from "react";
 import type { Address } from "viem";
-import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
+import { useBlockNumber } from "wagmi";
 import { AjnaPools } from "./components/AjnaPools";
 import { AjnaContext } from "./context";
 import { useReadPoolInfoUtilsAuctionStatus } from "./generated";
-import { format_wei } from "./utils";
 
 function Input({
   label,
@@ -41,106 +38,12 @@ function Input({
   );
 }
 
-function AjnaAuctionInfo({ query }: { query: UseReadContractReturnType }) {
-  if (query.isError) {
-    return (
-      <Box>
-        <Text color="red">{query.error.name}</Text>
-        <Text size="1" color="red" style={{ whiteSpace: "pre-wrap" }}>
-          {query.error.message}
-        </Text>
-      </Box>
-    );
-  }
-  if (!query.isSuccess) return;
-  // @ts-ignore
-  if (query?.data[0] === 0n) return <Text color="red">auction does not exist or ended</Text>;
-  // @ts-ignore
-  const kick_time = new Date(Number.parseInt(query?.data[0].toString()) * 1000)
-    .toISOString()
-    .replace("T", " ")
-    .replace(".000", "");
-  return (
-    <Flex direction="column" gap="2">
-      {query.isFetching ? (
-        <Text color="blue" size="1">
-          ● fetching…
-        </Text>
-      ) : (
-        <Text color="green" size="1">
-          ● updated
-        </Text>
-      )}
-      <Grid columns="2" align="baseline" gap="2">
-        <Text>kickTime </Text>
-        <Text truncate>{kick_time}</Text>
-        <Text>collateral </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[1], 18)}
-        </Text>
-        <Text>debtToCover </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[2], 18)}
-        </Text>
-        <Text>isCollateralized </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {query.data[3].toString()}
-        </Text>
-        <Text color="red">price </Text>
-        <Text truncate size="4" color="red">
-          {/* @ts-ignore */}
-          <Strong>{format_wei(query.data[4], 18)}</Strong>
-        </Text>
-        <Text>neutralPrice </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[5], 18)}
-        </Text>
-        <Text>referencePrice </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[6], 18)}
-        </Text>
-        <Text>debtToCollateral </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[7], 18)}
-        </Text>
-        <Text>bondFactor </Text>
-        <Text truncate size="4">
-          {/* @ts-ignore */}
-          {format_wei(query.data[8], 18)}
-        </Text>
-      </Grid>
-    </Flex>
-  );
-}
-
-export function AjnaActiveAuctions() {
-  return (
-    <Flex direction="column" gap="2">
-      <Text size="5">active auctions</Text>
-    </Flex>
-  );
-}
-
 function App() {
   const [settings, set_settings] = useState({ use_wei: true });
   const query_client = useQueryClient();
   const [pool, set_pool] = useState<Address>("");
   const [borrower, set_borrower] = useState<Address>("");
   const { data: block_number } = useBlockNumber({ watch: true });
-  const auction_query = useReadPoolInfoUtilsAuctionStatus({
-    args: [pool as Address, borrower as Address],
-    query: { enabled: !!pool && !!borrower && !!block_number, retry: 0 },
-  });
-
-  useEffect(() => {
-    query_client.invalidateQueries({ queryKey: auction_query.queryKey });
-  }, [block_number]);
 
   function set_query(key: string, value: string) {
     // @ts-ignore
