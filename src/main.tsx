@@ -14,9 +14,9 @@ import * as idb from "idb-keyval";
 import App from "./App.tsx";
 import { config } from "./wagmi.ts";
 
+import "./cmdk/raycast.scss";
 import "./fonts/fonts.css";
 import "./index.css";
-import "./cmdk/raycast.scss";
 
 import "@radix-ui/themes/styles.css";
 

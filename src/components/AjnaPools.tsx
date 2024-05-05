@@ -1,9 +1,10 @@
 import { Box, Flex, Grid, Separator, Strong, Text } from "@radix-ui/themes";
 import { Command } from "cmdk";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { serialize, useReadContracts } from "wagmi";
 import { get_auction_data, logs_to_depositors } from "../ajna";
+import { AjnaContext } from "../context";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
@@ -154,6 +155,8 @@ export function AjnaPoolSelect({ pools, names, selected, on_select }) {
 }
 
 export function AjnaPools() {
+  const settings = useContext(AjnaContext);
+  console.log(settings);
   const [selected_pool, set_selected_pool] = useState("0x07AAA9e40323A85e763a5b2eB9d8cA7ebAf7FB5A");
 
   // 1. get a list of all pools from the factory
