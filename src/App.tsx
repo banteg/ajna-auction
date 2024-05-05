@@ -1,20 +1,12 @@
-import { Box, Container, Flex, Grid, Spinner, Strong, Text, TextField } from "@radix-ui/themes";
+import { Box, Container, Flex, Grid, Strong, Text, TextField } from "@radix-ui/themes";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
-import { type Address, formatUnits } from "viem";
+import type { Address } from "viem";
 import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
 import { AjnaPools } from "./components/AjnaPools";
 import { useReadPoolInfoUtilsAuctionStatus } from "./generated";
-
-export function format_wei(value: bigint, decimals: number, digits = 5) {
-  // format to significant digits while keeping integer precision
-  const [integer_part, _decimal_part] = formatUnits(value, decimals).split(".");
-  const significant_digits = Math.max(integer_part.length, digits);
-  return (Number(value) / 10 ** decimals).toLocaleString("en-US", {
-    maximumSignificantDigits: Math.min(significant_digits, 18),
-  });
-}
+import { format_wei } from "./utils";
 
 function Input({
   label,
