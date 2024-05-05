@@ -3,6 +3,7 @@ import { Command } from "cmdk";
 import { useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { serialize, useReadContracts } from "wagmi";
+import { get_auction_data, logs_to_depositors } from "../ajna";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
@@ -21,6 +22,7 @@ const event_colors = {
   Kick: "red",
   KickReserveAuction: "red",
   Take: "cyan",
+  BucketTake: "cyan",
   Settle: "green",
   AuctionSettle: "green",
   ReserveAuction: "green",
@@ -47,6 +49,19 @@ export function PoolEvent({ log }: { log: Log }) {
   );
 }
 
+export function AjnaAuctionDetails({ borrower, logs }) {
+  return (
+    <Flex direction="column" gap="2">
+      <Text size="2" color="red">
+        {borrower}
+      </Text>
+      {logs.map((log) => (
+        <PoolEvent log={log} />
+      ))}
+    </Flex>
+  );
+}
+
 export function AjnaInterestChart({ logs }) {
   const data = logs?.map((log) => ({
     x: Number.parseInt(log.blockNumber),
@@ -63,6 +78,7 @@ export function AjnaInterestChart({ logs }) {
 
 export function AjnaPool({ pool, name, events }) {
   const update_interest_rate = events?.filter((log) => log.eventName === "UpdateInterestRate");
+  const auction_data = get_auction_data(events);
 
   return (
     <Flex direction="column" gap="4">
@@ -70,7 +86,14 @@ export function AjnaPool({ pool, name, events }) {
         <Text size="5">{name}</Text>
         <Text size="2">{pool}</Text>
       </Flex>
-      <AjnaInterestChart logs={update_interest_rate} />
+      {/* <AjnaInterestChart logs={update_interest_rate} /> */}
+      <Text>auction data</Text>
+      {Object.entries(auction_data ?? {}).map(([key, val]) => (
+        <AjnaAuctionDetails borrower={key} logs={val} />
+      ))}
+      <Text size="3" color="amber">
+        all pool events
+      </Text>
       {events && (
         <Box ml="4">
           {events.map((log) => (
