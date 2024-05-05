@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@radix-ui/themes";
+import { Box, Flex, Strong, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 import {
   type Address,
@@ -20,6 +20,31 @@ const page_size = 100000n;
 const abi_overrides = {
   "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2": erc20Abi_bytes32, // MKR
 };
+const event_colors = {
+  Kick: "red",
+};
+
+export function ContractEvent({ log }: { log: Log }) {
+  const args = [];
+  console.log(log);
+  for (const [key, val] of Object.entries(log.args)) {
+    const value = typeof val === "bigint" ? val.toString() : serialize(val);
+    args.push(`${key}=${value}`);
+  }
+  return (
+    <Flex as="p" gap="2">
+      <Text size="1" color="gray" as="span" style={{ fontFamily: "Aeonik Mono" }}>
+        {log.blockNumber?.toString()}
+      </Text>
+      <Text size="1" color={event_colors[log.eventName]} as="span">
+        <Strong>{log.eventName}</Strong>
+      </Text>
+      <Text size="1" color="tomato" as="span">
+        {args.join(", ")}
+      </Text>
+    </Flex>
+  );
+}
 
 export function AjnaPool({ pool, name, kicks }) {
   return (
@@ -30,9 +55,10 @@ export function AjnaPool({ pool, name, kicks }) {
       {kicks && (
         <Box ml="4">
           {kicks.map((log) => (
-            <Text size="1" color="red" as="p" key={`log-${log.blockNumber}-${log.logIndex}`}>
-              block={log.blockNumber.toString()} borrower={log.args.borrower}
-            </Text>
+            <ContractEvent key={`log-${log.blockNumber}-${log.logIndex}`} log={log} />
+            // <Text size="1" color="red" as="p" key={`log-${log.blockNumber}-${log.logIndex}`}>
+            //   block={log.blockNumber.toString()} borrower={log.args.borrower}
+            // </Text>
           ))}
         </Box>
       )}
