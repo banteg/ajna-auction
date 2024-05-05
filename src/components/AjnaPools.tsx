@@ -87,7 +87,12 @@ export function AjnaPool({ pool, name, events }) {
       {/* <AjnaInterestChart logs={update_interest_rate} /> */}
       <Text>auction data</Text>
       {Object.entries(auction_data ?? {}).map(([key, val]) => (
-        <AjnaAuctionDetails pool={pool} borrower={key} logs={val} />
+        <AjnaAuctionDetails
+          pool={pool}
+          borrower={key}
+          logs={val}
+          key={`auction-details-${pool}-${key}`}
+        />
       ))}
       <Text size="3" color="amber">
         all pool events
@@ -95,7 +100,7 @@ export function AjnaPool({ pool, name, events }) {
       {events && (
         <Box ml="4">
           {events.map((log) => (
-            <PoolEvent key={`log-${log.blockNumber}-${log.logIndex}`} log={log} />
+            <PoolEvent key={`log-pool-${log.blockNumber}-${log.logIndex}`} log={log} />
           ))}
         </Box>
       )}

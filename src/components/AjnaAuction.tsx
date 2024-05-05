@@ -16,6 +16,7 @@ import { type UseReadContractReturnType, useBlockNumber } from "wagmi";
 import { useReadPoolInfoUtilsAuctionStatus } from "../generated";
 import { format_epoch, format_wad, format_wei } from "../utils";
 import { PoolEvent } from "./AjnaPools";
+import { AuctionPriceChart } from "./Chart";
 
 function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
   if (query.isError) {
@@ -62,18 +63,21 @@ function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
   const [pool, borrower] = query.queryKey[1].args; // bit hacky
 
   return (
-    <Box maxWidth="20rem">
+    <Box>
       <Card>
-        <Flex direction="column" gap="2" flexBasis="50%">
-          <Text>auction status</Text>
-          <DataList.Root size="1">
-            {Object.entries(data).map(([key, value]) => (
-              <DataList.Item key={`auction-status-${pool}-${borrower}-${key}`}>
-                <DataList.Label>{key}</DataList.Label>
-                <DataList.Value>{value}</DataList.Value>
-              </DataList.Item>
-            ))}
-          </DataList.Root>
+        <Flex gap="4">
+          <Flex direction="column" gap="2" flexBasis="50%">
+            <Text>auction status</Text>
+            <DataList.Root size="1">
+              {Object.entries(data).map(([key, value]) => (
+                <DataList.Item key={`auction-status-${pool}-${borrower}-${key}`}>
+                  <DataList.Label>{key}</DataList.Label>
+                  <DataList.Value>{value}</DataList.Value>
+                </DataList.Item>
+              ))}
+            </DataList.Root>
+          </Flex>
+          <AuctionPriceChart refernce_price={query.data[6]} kick_time={query.data[0]} />
         </Flex>
       </Card>
     </Box>
@@ -106,7 +110,7 @@ export function AjnaAuctionDetails({ pool, borrower, logs }) {
         )}
       </Text>
       {logs.map((log) => (
-        <PoolEvent log={log} />
+        <PoolEvent log={log} key={`log-auction-${log.blockNumber}-${log.logIndex}`} />
       ))}
       {!is_settled && <AjnaAuctionStatus query={auction_query} />}
     </Flex>
