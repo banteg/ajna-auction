@@ -6,6 +6,7 @@ import { serialize, useReadContracts } from "wagmi";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
+import { Chart } from "./Chart";
 
 const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 const ajna_factory_deploy_block = 18962313n;
@@ -47,27 +48,21 @@ export function PoolEvent({ log }: { log: Log }) {
 }
 
 export function AjnaInterestChart({ logs }) {
+  const data = logs?.map((log) => ({
+    x: Number.parseInt(log.blockNumber),
+    y: Number.parseFloat(format_wei(log.args.newRate, 16)),
+  }));
+  if (!data) return;
   return (
-    <Flex direction="column">
-      <Text size="1" as="div">
-        {logs &&
-          logs.map((log) => (
-            <Grid columns="4" gap="4" maxWidth="25rem">
-              <Text>{log.blockNumber.toString()}</Text>
-              <Text>{format_wei(log.args.oldRate, 16)}%</Text>
-              <Text>{format_wei(log.args.newRate, 16)}%</Text>
-              <Text>{format_wei(log.args.newRate - log.args.oldRate, 16)}%</Text>
-            </Grid>
-          ))}
-      </Text>
-    </Flex>
+    <Box>
+      <Text>interest rate</Text>
+      <Chart data={data} />
+    </Box>
   );
 }
 
 export function AjnaPool({ pool, name, events }) {
-  const update_interest_rate =
-    events && events.filter((log) => log.eventName === "UpdateInterestRate");
-  console.log(update_interest_rate);
+  const update_interest_rate = events?.filter((log) => log.eventName === "UpdateInterestRate");
 
   return (
     <Flex direction="column" gap="4">
