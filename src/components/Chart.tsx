@@ -1,35 +1,25 @@
-import { Box } from "@radix-ui/themes";
-import { AxisBottom, AxisLeft } from "@visx/axis";
-import { curveStepAfter } from "@visx/curve";
-import { scaleLinear } from "@visx/scale";
-import { LinePath } from "@visx/shape";
-import { extent } from "@visx/vendor/d3-array";
+import { Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
 
 export function Chart({ data }: { data: { x: number; y: number }[] }) {
-  const width = 300;
-  const height = 150;
-  const x_scale = scaleLinear<number>({
-    domain: extent(data, (row) => row.x) as [number, number],
-    range: [50, 250],
-  });
-  const y_scale = scaleLinear<number>({
-    domain: extent(data, (row) => row.y) as [number, number],
-    range: [125, 10],
-  });
-
+  const last = data[data.length - 1];
   return (
-    <Box>
-      <svg width={width} height={height}>
-        <LinePath
-          data={data}
-          x={(d) => x_scale(d.x)}
-          y={(d) => y_scale(d.y)}
-          stroke="red"
-          curve={curveStepAfter}
+    <div style={{ fontSize: "12px" }}>
+      <LineChart
+        width={600}
+        height={300}
+        data={data}
+        margin={{ top: 5, right: 40, left: 20, bottom: 5 }}
+      >
+        <XAxis type="number" dataKey="x" domain={["dataMin", "dataMax"]} />
+        <YAxis type="number" dataKey="y" />
+        <Line type="stepAfter" dot={false} dataKey="y" isAnimationActive={false} />
+        <ReferenceLine y={last.y} stroke="red" />
+        <Tooltip
+          isAnimationActive={false}
+          allowEscapeViewBox={{ x: true, y: true }}
+          position={{ x: 90, y: 15 }}
         />
-        <AxisBottom scale={x_scale} numTicks={3} top={125} />
-        <AxisLeft scale={y_scale} numTicks={4} left={50} />
-      </svg>
-    </Box>
+      </LineChart>
+    </div>
   );
 }

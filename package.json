@@ -16,11 +16,11 @@
     "@tanstack/react-query": "5.0.5",
     "@tanstack/react-query-devtools": "^5.32.1",
     "@tanstack/react-query-persist-client": "^5.32.1",
-    "@visx/visx": "^3.10.2",
     "cmdk": "^1.0.0",
     "idb-keyval": "^6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recharts": "^2.12.6",
     "viem": "latest",
     "wagmi": "latest"
   },
