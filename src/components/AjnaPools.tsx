@@ -18,6 +18,8 @@ const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 const ajna_factory_deploy_block = 18962313n;
 const page_size = 100000n;
 
+const ajna_pool_events = erc20PoolAbi.filter((abi) => abi.type === "event");
+
 const abi_overrides = {
   "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2": erc20Abi_bytes32, // MKR
 };
@@ -139,14 +141,7 @@ export function AjnaPools() {
   const pool_events_query = useInfiniteContractLogs({
     address: pools_query.data ?? [],
     start_block: ajna_factory_deploy_block,
-    events: parseAbi([
-      "event Kick(address indexed borrower, uint256 debt, uint256 collateral, uint256 bond)",
-      "event Take(address indexed borrower, uint256 amount, uint256 collateral, uint256 bondChange, bool isReward)",
-      "event Settle(address indexed borrower, uint256 settledDebt)",
-      "event AuctionSettle(address indexed borrower, uint256 collateral)",
-      "event KickReserveAuction(uint256 claimableReservesRemaining, uint256 auctionPrice, uint256 currentBurnEpoch)",
-      "event ReserveAuction(uint256 claimableReservesRemaining, uint256 auctionPrice, uint256 currentBurnEpoch)",
-    ]),
+    events: ajna_pool_events,
     page_size: page_size,
     enabled: pools_query.isSuccess,
   });
@@ -172,7 +167,11 @@ export function AjnaPools() {
         )}
         {pool_tokens_query.isPending && <Text color="blue"> / fetching pool tokens</Text>}
         {pool_tokens_symbols.isPending && <Text color="blue"> / fetching pool names</Text>}
-        {pool_events_query.isFetching && <Text color="blue"> / fetching kicks</Text>}
+        {pool_events_query.isFetching ? (
+          <Text color="blue"> / fetching pool events</Text>
+        ) : (
+          <Text color="green"> / fetched {pool_events_query.data?.length} pool events</Text>
+        )}
       </Box>
       {pool_names &&
         pools_query?.data.map((pool) => (
