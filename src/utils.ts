@@ -19,3 +19,7 @@ export function format_epoch(value: bigint) {
     .replace("T", " ")
     .replace(".000", "");
 }
+
+export function range(num: number) {
+  return [...Array(num).entries()].map((_e, i) => i);
+}
