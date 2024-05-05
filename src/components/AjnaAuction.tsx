@@ -49,27 +49,18 @@ function AjnaAuctionStatus({ query }: { query: UseReadContractReturnType }) {
   const [pool, borrower] = query.queryKey[1].args; // bit hacky
 
   return (
-    <Box>
+    <Box maxWidth="20rem">
       <Card>
-        <Flex gap="4">
-          <Flex direction="column" gap="2" flexBasis="50%">
-            <Text>auction status</Text>
-            <DataList.Root size="1">
-              {Object.entries(data).map(([key, value]) => (
-                <DataList.Item key={`auction-status-${pool}-${borrower}-${key}`}>
-                  <DataList.Label>{key}</DataList.Label>
-                  <DataList.Value>{value}</DataList.Value>
-                </DataList.Item>
-              ))}
-            </DataList.Root>
-          </Flex>
-          <Separator orientation="vertical" size="3" my="-4" style={{ height: "21rem" }} />
-          <Flex direction="column" gap="2" flexBasis="50%">
-            <Text>auction actions</Text>
-            <Callout.Root color="purple">
-              <Callout.Text>coming soon…</Callout.Text>
-            </Callout.Root>
-          </Flex>
+        <Flex direction="column" gap="2" flexBasis="50%">
+          <Text>auction status</Text>
+          <DataList.Root size="1">
+            {Object.entries(data).map(([key, value]) => (
+              <DataList.Item key={`auction-status-${pool}-${borrower}-${key}`}>
+                <DataList.Label>{key}</DataList.Label>
+                <DataList.Value>{value}</DataList.Value>
+              </DataList.Item>
+            ))}
+          </DataList.Root>
         </Flex>
       </Card>
     </Box>
