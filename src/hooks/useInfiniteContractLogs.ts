@@ -9,6 +9,7 @@ interface UseContractLogsProps {
   event: AbiEvent;
   start_block: bigint;
   page_size: bigint;
+  enabled: boolean;
 }
 
 interface PageParam {
@@ -36,6 +37,7 @@ export function useInfiniteContractLogs({
   event,
   start_block,
   page_size,
+  enabled = true,
 }: UseContractLogsProps) {
   const config = useContext(WagmiContext);
   const { data: end_block } = useBlockNumber();
@@ -60,6 +62,7 @@ export function useInfiniteContractLogs({
     },
     select: (data) => data.pages.flat(),
     staleTime: Number.POSITIVE_INFINITY,
+    enabled: enabled,
   });
 
   useEffect(() => {

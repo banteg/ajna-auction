@@ -32,7 +32,7 @@ const persister = experimental_createPersister({
   maxAge: Number.POSITIVE_INFINITY,
   serialize: (value: PersistedQuery) => value,
   deserialize: (value) => value,
-  buster: "12",
+  buster: "15",
 });
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1,5 +1,5 @@
-import { Box, Container, Flex, Grid, Strong, Text, TextField } from "@radix-ui/themes";
-import { useQueryClient } from "@tanstack/react-query";
+import { Box, Container, Flex, Grid, Spinner, Strong, Text, TextField } from "@radix-ui/themes";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { type Address, formatUnits } from "viem";
@@ -28,7 +28,11 @@ function Input({
   return (
     <Box>
       <Text color="gray">{label}</Text>
-      <TextField.Root placeholder={label} value={value} onChange={(e) => set_value(e.target.value as Address)} />
+      <TextField.Root
+        placeholder={label}
+        value={value}
+        onChange={(e) => set_value(e.target.value as Address)}
+      />
     </Box>
   );
 }
@@ -121,6 +125,7 @@ export function AjnaActiveAuctions() {
 
 function App() {
   const query_client = useQueryClient();
+  const is_fetching = useIsFetching();
   const [pool, set_pool] = useState<Address>("");
   const [borrower, set_borrower] = useState<Address>("");
   const { data: block_number } = useBlockNumber({ watch: true });
@@ -157,7 +162,7 @@ function App() {
   }, []);
 
   return (
-    <Container size="1" p={{ initial: "2", md: "4" }}>
+    <Container size="3" p={{ initial: "2", md: "4" }}>
       <Flex direction="column" gap="4">
         <Flex align="baseline">
           <Text size="5">ajna auction</Text>
@@ -168,9 +173,10 @@ function App() {
             </Text>
           )}
         </Flex>
+        {/*
         <Input label="pool" value={pool} set_value={set_pool} />
         <Input label="borrower" value={borrower} set_value={set_borrower} />
-        <AjnaAuctionInfo query={auction_query} />
+        <AjnaAuctionInfo query={auction_query} /> */}
         <AjnaPools />
       </Flex>
       <ReactQueryDevtools />
