@@ -1,10 +1,11 @@
-import { Box, Flex, Separator, Strong, Text } from "@radix-ui/themes";
+import { Box, Flex, Grid, Separator, Strong, Text } from "@radix-ui/themes";
 import { Command } from "cmdk";
 import { useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { serialize, useReadContracts } from "wagmi";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
+import { format_wei } from "../utils";
 
 const ajna_factory: Address = "0x6146DD43C5622bB6D12A5240ab9CF4de14eDC625";
 const ajna_factory_deploy_block = 18962313n;
@@ -45,29 +46,49 @@ export function PoolEvent({ log }: { log: Log }) {
   );
 }
 
-export function AjnaPool({ pool, name, events }) {
+export function AjnaInterestChart({ logs }) {
   return (
-    <Box>
+    <Flex direction="column">
+      <Text size="1" as="div">
+        {logs &&
+          logs.map((log) => (
+            <Grid columns="4" gap="4" maxWidth="25rem">
+              <Text>{log.blockNumber.toString()}</Text>
+              <Text>{format_wei(log.args.oldRate, 16)}%</Text>
+              <Text>{format_wei(log.args.newRate, 16)}%</Text>
+              <Text>{format_wei(log.args.newRate - log.args.oldRate, 16)}%</Text>
+            </Grid>
+          ))}
+      </Text>
+    </Flex>
+  );
+}
+
+export function AjnaPool({ pool, name, events }) {
+  const update_interest_rate =
+    events && events.filter((log) => log.eventName === "UpdateInterestRate");
+  console.log(update_interest_rate);
+
+  return (
+    <Flex direction="column" gap="4">
       <Flex gap="4" align="baseline">
         <Text size="5">{name}</Text>
         <Text size="2">{pool}</Text>
       </Flex>
+      <AjnaInterestChart logs={update_interest_rate} />
       {events && (
         <Box ml="4">
           {events.map((log) => (
             <PoolEvent key={`log-${log.blockNumber}-${log.logIndex}`} log={log} />
-            // <Text size="1" color="red" as="p" key={`log-${log.blockNumber}-${log.logIndex}`}>
-            //   block={log.blockNumber.toString()} borrower={log.args.borrower}
-            // </Text>
           ))}
         </Box>
       )}
-    </Box>
+    </Flex>
   );
 }
 
 export function AjnaPoolSelect({ pools, names, selected, on_select }) {
-  const [open, set_open] = useState(true);
+  const [open, set_open] = useState(false);
   const [input_value, set_input_value] = useState("");
 
   return (
@@ -84,7 +105,7 @@ export function AjnaPoolSelect({ pools, names, selected, on_select }) {
         }}
       >
         <Command.Input
-          autoFocus={true}
+          // autoFocus={true}
           placeholder="select pool"
           value={input_value}
           onValueChange={set_input_value}
@@ -115,7 +136,7 @@ export function AjnaPoolSelect({ pools, names, selected, on_select }) {
 }
 
 export function AjnaPools() {
-  const [selected_pool, set_selected_pool] = useState(null);
+  const [selected_pool, set_selected_pool] = useState("0x07AAA9e40323A85e763a5b2eB9d8cA7ebAf7FB5A");
 
   // 1. get a list of all pools from the factory
   const pools_query = useReadErc20PoolFactoryGetDeployedPoolsList();
@@ -219,7 +240,7 @@ export function AjnaPools() {
           on_select={set_selected_pool}
         />
       )}
-      {selected_pool && (
+      {pool_names && selected_pool && (
         <AjnaPool
           pool={selected_pool}
           name={pool_names[selected_pool]}
