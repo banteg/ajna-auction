@@ -1,6 +1,6 @@
 import { Box, Flex, Separator, Text } from "@radix-ui/themes";
 import { Command } from "cmdk";
-import { Children, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { useReadContracts } from "wagmi";
 import { get_auction_data } from "../ajna";
@@ -190,8 +190,10 @@ export function AjnaPools() {
     return events;
   }, [pool_events_query.data]);
 
-  // const { ended_auctions, active_auctions } = find_auctions_v2(pool_events_query.data);
-  // console.log(ended_auctions.length, active_auctions.length);
+  useEffect(() => {
+    const { ended_auctions, active_auctions } = find_auctions_v2(pool_events_query.data);
+    console.log(ended_auctions.length, active_auctions.length);
+  }, [pool_events_query.isSuccess]);
 
   return (
     <Flex direction="column" gap="4">
