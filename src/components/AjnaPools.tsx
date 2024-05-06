@@ -4,6 +4,7 @@ import { Children, useMemo, useState } from "react";
 import { type Address, type Log, erc20Abi, erc20Abi_bytes32, fromHex, getAddress } from "viem";
 import { useReadContracts } from "wagmi";
 import { get_auction_data } from "../ajna";
+import { find_auctions_v2 } from "../ajna/auctions";
 import { erc20PoolAbi, useReadErc20PoolFactoryGetDeployedPoolsList } from "../generated";
 import { useInfiniteContractLogs } from "../hooks/useInfiniteContractLogs";
 import { format_wei } from "../utils";
@@ -188,6 +189,9 @@ export function AjnaPools() {
     }
     return events;
   }, [pool_events_query.data]);
+
+  // const { ended_auctions, active_auctions } = find_auctions_v2(pool_events_query.data);
+  // console.log(ended_auctions.length, active_auctions.length);
 
   return (
     <Flex direction="column" gap="4">

@@ -1,15 +1,12 @@
 import { Box, Flex, Strong, Text } from "@radix-ui/themes";
-import { Children, useContext } from "react";
+import { Children } from "react";
 import type { Log } from "viem";
 import { event_colors, format_value } from "../ajna/formatters";
-import { AjnaContext } from "../context";
 
 export function PoolEvent({ log }: { log: Log }) {
-  const settings = useContext(AjnaContext);
-
   const args = [];
   for (const [key, val] of Object.entries(log.args)) {
-    args.push([key, format_value(key, val, settings.use_wei)]);
+    args.push([key, format_value(key, val)]);
   }
   return (
     <Box>

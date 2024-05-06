@@ -77,7 +77,7 @@ export const event_colors = {
   ReserveAuction: "green",
 };
 
-export function format_value(key, value, use_wei) {
+export function format_value(key, value) {
   if (key in formatters) return formatters[key](value);
   console.log("unhandled", key, value);
   return serialize(value);
