@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "Aeonik";
+  src: url("./aeonik/Aeonik-Regular.otf") format("opentype");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Aeonik";
+  src: url("./aeonik/Aeonik-Bold.otf") format("opentype");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Aeonik Mono";
+  src: url("./aeonik_mono/AeonikMono-Regular.otf") format("opentype");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Aeonik Mono";
+  src: url("./aeonik_mono/AeonikMono-Bold.otf") format("opentype");
+  font-weight: bold;
+}
