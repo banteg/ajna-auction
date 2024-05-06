@@ -1,8 +1,7 @@
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 import { Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
-import { serialize } from "wagmi";
-import { auction_price } from "../ajna";
+import { auction_price } from "../ajna/auctions";
 import { format_wad, range } from "../utils";
 
 export function Chart({ data }: { data: { x: number; y: number }[] }) {
